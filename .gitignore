@@ -1,0 +1,24 @@
+# Compiled binaries — produced by `go build` and `make build`
+/bin/
+/inkwell
+
+# Test artifacts
+*.test
+*.out
+coverage.txt
+
+# SQLite databases (we'll have these from M2 onward)
+*.db
+*.db-journal
+*.db-wal
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local-only env (we use a real config file, not dotenv, but just in case)
+.env
+.env.*
+!.env.example
