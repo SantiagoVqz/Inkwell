@@ -2,6 +2,8 @@
 
 Snippet-driven build. Each milestone ships something demonstrable, teaches specific Go concepts, and is sized for one or two evening sessions. See `CONTEXT.md` for vocabulary and `docs/adr/` for durable decisions.
 
+> **Strategic framing (ADR-0008):** Inkwell is the shippable product that absorbs the Python `research-tool`'s full scope, slice by slice. v1's ingest-only scope below is unchanged — only the destination is now explicit. Distribution (ADR-0009), the web dashboard (ADR-0010), and direct API access (ADR-0011) are first-class, not "someday." The full feature inventory and sprint backlog live in [`docs/research-tool-feature-map.md`](docs/research-tool-feature-map.md).
+
 ## v1 — Ingest only (target: ~4-6 weeks elapsed, ~13-18 active evenings)
 
 Goal: replace the Python `content-pipeline` cron job with `inkwell ingest`. No embeddings, no LLM, no clustering. Entries land in `Inbox/Inkwell/YYYY/MM/{slug}-{hash}.md`. Stories are manually attached via CLI or frontmatter.
@@ -35,10 +37,10 @@ Goal: replace the Python `content-pipeline` cron job with `inkwell ingest`. No e
 - Storyline notes → v3
 - Automatic Story attachment → v2
 - Internal daemon mode (`run --daemon`) → if and only if v1 is migrated off macOS
-- TUI (`bubbletea`) → late v3+
-- HTTP read API → late v3+
+- TUI (`bubbletea`) → optional *secondary* surface, later; the primary UI is the web dashboard (ADR-0010)
+- Web dashboard → product milestone *after* the ingest walking skeleton is solid (ADR-0010), not v1
 - Semantic dedup → v2
-- `goreleaser` → when actually distributed
+- `goreleaser` / single-binary release → first public release; distribution is first-class (ADR-0009), designed in early, just not coded in v1's first milestones
 
 ---
 
@@ -62,9 +64,21 @@ Goal: weekly Storyline note in the vault, clustered themes, LLM-generated narrat
 | # | Milestone |
 |---|---|
 | v3-1 | `internal/cluster/` interface + agglomerative-threshold impl |
-| v3-2 | `internal/synth/` interface + `claude` CLI impl (shell out, prompt template, parse output) |
+| v3-2 | `internal/synth/` interface + **Anthropic Go SDK** impl (`anthropic-sdk-go`, BYO-key, prompt template, parse output) — ADR-0011 supersedes the earlier `claude` CLI shell-out plan |
 | v3-3 | Synthesis pipeline orchestration; Storyline note layout in vault |
-| v3-4 | Optional: HDBSCAN swap; Anthropic API native impl; TUI dashboard; HTTP read API; `goreleaser` for distribution |
+| v3-4 | Optional refinements: HDBSCAN swap for the clusterer; richer dashboard parity (timeline/heatmap). (Distribution, the web dashboard, and the Anthropic SDK are no longer parked here — they're first-class per ADR-0009/0010/0011 and land on their own tracks.) |
+
+---
+
+## v4 — Output add-on (optional, ADR-0012)
+
+Goal: optional content-generation output, behind a plugin interface, for users who want drafts (Santiago's LinkedIn/blog use case). **Strictly optional and last — must not pull core sprints; v1–v3 must be fully usable without it.** Port the drafting logic from research-tool (`draft.py`, voice lint/tighten, angles, claim lint); prompts in `research-tool/prompts/formats/` carry over verbatim. See [`docs/research-tool-feature-map.md`](docs/research-tool-feature-map.md) §F.
+
+| # | Milestone |
+|---|---|
+| v4-1 | `internal/output/` plugin interface (one consumer to start); behind build tag / config flag |
+| v4-2 | Drafting plugin: multi-format publish bundle (LinkedIn / blog / Substack / threads / newsletter / notes) |
+| v4-3 | Voice lint + tighten; content angles (`essays` / `cityfront`); claim lint |
 
 ---
 

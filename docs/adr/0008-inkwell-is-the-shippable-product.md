@@ -1,0 +1,9 @@
+# Inkwell is the shippable product; research-tool is reference spec, run in parallel
+
+Inkwell began as a Go rewrite of the Python `research-tool`'s ingest stage, framed as a learning project (ADR-0001). It is now positioned as the **shippable, public-facing product** that absorbs research-tool's full scope — ingest → enrich → classify → cluster → synthesize → dashboard — one vertical slice at a time. `research-tool` (Python, ~9k LOC, mature, but unshippable: venv/pip/launchd/hand-edited YAML, assumes the Claude CLI is installed) becomes the **reference specification and the brain we port from**. Its prompts are text files that carry over verbatim; its scripts are the behavior spec; its `docs/GENERALIZE.md` is the generalization target.
+
+The two run **in parallel** during migration: research-tool keeps doing synthesis on Santiago's machine until Inkwell's equivalent slice lands and is verified, so no capability is ever lost — the same premise as ADR-0001, now with an explicit destination. The full inventory and slice ordering live in [`docs/research-tool-feature-map.md`](../research-tool-feature-map.md).
+
+This repositioning makes single-binary distribution (ADR-0009), an embedded web dashboard (ADR-0010), and direct LLM API access (ADR-0011) **first-class goals** rather than the deferred "someday" concerns the ROADMAP originally listed. It **amends the framing** of ADR-0001 — v1's ingest-only scope is unchanged; only the destination is now stated.
+
+**Considered and rejected**: continuing in Python and packaging it (PyInstaller/pyoxidizer are perpetually fragile; distribution is Python's weakest axis, and distribution is the dominant constraint for going public); rewriting all stages at once (long path to first usable release, abandons walking-skeleton-first discipline); keeping Inkwell ingest-only forever (leaves the valuable synthesis + UI permanently stranded in unshippable Python).

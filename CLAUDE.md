@@ -12,6 +12,7 @@ This file is the orientation layer. The durable detail lives in:
 - [`CONTEXT.md`](CONTEXT.md) — the canonical glossary (ubiquitous language). **Read it before touching the domain.**
 - [`ROADMAP.md`](ROADMAP.md) — milestones, acceptance criteria, what each version does *not* ship.
 - [`docs/adr/`](docs/adr/) — Architecture Decision Records: the *why* behind each choice, with rejected alternatives.
+- [`docs/research-tool-feature-map.md`](docs/research-tool-feature-map.md) — the migration backlog: every research-tool feature mapped to an Inkwell version/milestone, in sprint-pull order. **Start here when picking what to build next.**
 
 ---
 
@@ -34,37 +35,37 @@ verbatim; what you re-derive is the glue, not the intelligence.
 
 ---
 
-## The product decisions (settled)
+## The product decisions (settled, ADR-ratified)
 
-These came out of the strategy discussion that motivated this file. The ones
-marked **⚠ needs ADR** extend or revisit existing ADRs and must be ratified as
-new records before they're treated as load-bearing — don't let them sit as
-folklore in CLAUDE.md.
+These came out of the strategy discussion that motivated this file and are now
+recorded as ADRs — the load-bearing record, not folklore.
 
 1. **Language: Go.** The dominant constraint is *distribution* — a single static
    binary that cross-compiles to every OS collapses the two biggest shippability
    gaps (install + scheduling) for free. Go also fits the workload: concurrent
    fetch, stdlib HTTP for the dashboard, cobra for the CLI.
-2. **Form factor: a CLI that embeds a local web dashboard** served on
-   `127.0.0.1` (the Ollama / Syncthing / Jupyter pattern). Not a desktop GUI.
-   The `research-tool` dashboard (entity graph + recommendations + pipeline
-   buttons) is the UI we re-implement as the "app face." **⚠ needs ADR** — the
-   ROADMAP currently defers the HTTP dashboard to "late v3+"; shippability pulls
-   it forward as a first-class surface.
-3. **LLM access: direct Anthropic API via the official Go SDK
-   (`anthropic-sdk-go`), bring-your-own-key.** A public tool cannot assume the
-   Claude Code CLI is installed on the user's machine. **⚠ needs ADR** —
-   ROADMAP milestone v3-2 currently says "claude CLI impl (shell out)"; replace
-   that with the SDK. Use the latest Claude models (Opus 4.8 / Sonnet 4.6 /
-   Haiku 4.5); read the `claude-api` skill before writing any API code.
-4. **Distribution is a goal, not an afterthought.** `goreleaser` + tagged
-   GitHub releases + `brew install` are part of "done," not "someday."
-   **⚠ needs ADR.**
-5. **Cross-platform scheduling, eventually.** v1 stays on `launchd`
-   ([ADR-0004](docs/adr/0004-launchd-over-internal-daemon.md)) — correct for a
-   macOS-only start — but public reach means systemd/cron/Task Scheduler or an
-   internal scheduler later. ADR-0004 already anticipates this by keeping
-   `Pipeline.Run(ctx)` host-agnostic. **⚠ revisit when we leave macOS.**
+   ([ADR-0008](docs/adr/0008-inkwell-is-the-shippable-product.md))
+2. **Inkwell is the product; `research-tool` is the reference spec**, run in
+   parallel during migration so no capability is lost.
+   ([ADR-0008](docs/adr/0008-inkwell-is-the-shippable-product.md))
+3. **Distribution is first-class:** single static binary via `goreleaser` +
+   releases + brew tap + `inkwell init`. Part of "done," not "someday."
+   ([ADR-0009](docs/adr/0009-distribution-is-first-class.md))
+4. **Form factor: a CLI that embeds a local web dashboard** on `127.0.0.1`
+   (the Ollama / Syncthing / Jupyter pattern) — re-implementing research-tool's
+   graph + recommendations + action allow-list. Pulled forward from "late v3+."
+   ([ADR-0010](docs/adr/0010-cli-with-embedded-web-dashboard.md))
+5. **LLM access: the official Anthropic Go SDK (`anthropic-sdk-go`),
+   bring-your-own-key** — not a shelled-out Claude CLI. Latest models
+   (Opus 4.8 / Sonnet 4.6 / Haiku 4.5); read the `claude-api` skill before
+   writing API code.
+   ([ADR-0011](docs/adr/0011-anthropic-go-sdk-byo-key.md))
+
+**Still open (revisit, no ADR yet):** cross-platform scheduling. v1 stays on
+`launchd` ([ADR-0004](docs/adr/0004-launchd-over-internal-daemon.md)) — correct
+for a macOS-only start — but public reach means systemd/cron/Task Scheduler or
+an internal scheduler later. ADR-0004 already keeps `Pipeline.Run(ctx)`
+host-agnostic; write the ADR when we actually leave macOS.
 
 What has **not** changed: the ingest-first scope ([ADR-0001](docs/adr/0001-v1-scope-ingest-only.md)),
 the two-pipeline + SQLite-seam architecture ([ADR-0002](docs/adr/0002-two-pipeline-architecture.md)),
