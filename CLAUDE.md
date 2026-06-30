@@ -96,6 +96,21 @@ Harness skills that map to this loop: `write-a-prd`, `grill-me-with-docs`
 (sharpen glossary + ADRs), `prd-to-issues` (tracer-bullet slices), `tdd`,
 `find-critical-gaps`, `commit-push-pr`.
 
+### Pairing style (how to write code with the owner)
+
+The owner is a senior TS/Node/Python engineer, new to Go. When implementing:
+
+- **Write the working code first, then explain it** — don't pre-narrate code the
+  owner would just copy-paste. Build it, run the tests, then walk through it.
+- **Keep the walkthrough at "enough to own it" altitude:** what each piece does,
+  how the moving parts connect, and where they'd make a small change. Not an
+  expert Go tutorial.
+- **Explain a new Go or SQL concept once, briefly, the first time it appears**
+  (e.g. `//go:embed`, `sql.NullString`, expression indexes) — a sentence or two,
+  not a deep dive. Skip language-agnostic basics.
+- Verify before explaining: `go test ./...` green and `go vet` clean is the
+  precondition for the walkthrough, so the explanation describes code that works.
+
 ---
 
 ## Current state
