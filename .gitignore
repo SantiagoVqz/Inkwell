@@ -11,6 +11,15 @@ coverage.txt
 *.db
 *.db-journal
 *.db-wal
+*.db-shm
+
+# Local config & feed lists (personal data — never commit).
+# Real config lives in ~/.config/inkwell/; these guard test copies dropped
+# in the repo. config.yaml leaks your vault_path; *.opml is your literal
+# subscription list (M4 OPML import).
+config.yaml
+config.local.yaml
+*.opml
 
 # Editor / OS
 .DS_Store
