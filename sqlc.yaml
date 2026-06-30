@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    # Schema is the migrations dir: sqlc reads the same DDL the runtime applies,
+    # so generated Go and the real database can never drift apart.
+    schema: "internal/store/migrations"
+    queries: "internal/store/query.sql"
+    gen:
+      go:
+        package: "store"
+        out: "internal/store"
+        # Nullable columns become *T (e.g. *string) instead of sql.NullString,
+        # so "absent" reads as a nil pointer — closer to TS's `string | null`.
+        emit_pointers_for_null_types: true

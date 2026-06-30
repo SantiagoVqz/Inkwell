@@ -5,6 +5,8 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	_ "modernc.org/sqlite" // pure-Go driver, registers itself as "sqlite" (ADR-0013)
 )
@@ -17,6 +19,14 @@ import (
 //   - journal_mode(WAL): readers (the dashboard) don't block the writer (ingest).
 //   - busy_timeout(5000): wait up to 5s for a lock instead of failing instantly.
 func Open(path string) (*sql.DB, error) {
+	// The default DB path lives under ~/.local/share/inkwell/, which won't exist
+	// on a fresh machine. The driver creates the file but not its parent dirs.
+	if dir := filepath.Dir(path); dir != "" {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return nil, fmt.Errorf("create db dir %s: %w", dir, err)
+		}
+	}
+
 	dsn := fmt.Sprintf(
 		"file:%s?_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)",
 		path,

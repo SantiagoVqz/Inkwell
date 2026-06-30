@@ -13,7 +13,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION)
 
 GO ?= go
 
-.PHONY: build run test vet fmt tidy clean help
+.PHONY: build run test vet fmt tidy generate clean help
 
 build: ## Build the inkwell binary into ./bin/
 	@mkdir -p $(BIN_DIR)
@@ -33,6 +33,9 @@ fmt: ## Format all Go files in place
 
 tidy: ## Add/remove module dependencies as imports change
 	$(GO) mod tidy
+
+generate: ## Regenerate sqlc code from migrations + query.sql
+	$(GO) tool sqlc generate
 
 clean: ## Remove build artifacts
 	rm -rf $(BIN_DIR)
